@@ -12,7 +12,7 @@ init()
 
 terra = LCDClient(chain_id="columbus-5", url="https://lcd.terra.dev")
 
->>>>>>> b3809131fa1421ef65988c84b4f89f6683f0b779
+
 
 from terra_sdk.key.mnemonic import MnemonicKey
 
