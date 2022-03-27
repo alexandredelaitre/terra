@@ -1,6 +1,7 @@
 from terra_sdk.client.lcd import LCDClient
 import time
 import os
+import csv
 
 def init():
     global mnemonic
@@ -58,22 +59,35 @@ contracts={
     'terraswap':terraswapContracts
 }"""
 
-contract="terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux"
-otherAsset=terra.wasm.contract_query(contract,{'pool':{}})['assets'][1]['info']['token']['contract_addr']
-print(otherAsset)
-mirust=terra.wasm.contract_query(contract,
-    {
-        "simulation": {
-            "offer_asset": {
-                "info" : {
-                    "token": {
-                        "contract_addr": "terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6"
-                    }
-                },
-                "amount": "1000000"
+#contract="terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux" #terraswap
+#contract="terra1cpzkckgzz90pq8fkumdjc58ee5llrxt2yka9fp" #loop
+#contract="terra143xxfw5xf62d5m32k3t4eu9s82ccw80lcprzl9" #astroport
+
+def checkPrice(contract):
+
+    try:
+        otherAsset=terra.wasm.contract_query(contract,{'pool':{}})['assets'][1]['info']['token']['contract_addr']
+    except:
+        otherAsset=terra.wasm.contract_query(contract,{'pool':{}})['assets'][0]['info']['token']['contract_addr']
+    print(otherAsset)
+    mirust=terra.wasm.contract_query(contract,
+        {
+            "simulation": {
+                "offer_asset": {
+                    "info" : {
+                        "token": {
+                            "contract_addr": "terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6"
+                        }
+                    },
+                    "amount": "1000000"
+                }
             }
         }
-    }
-)
+    )
 
-print("$"+str(float(mirust['return_amount'])/1000000))
+    print("$"+str(float(mirust['return_amount'])/1000000))
+
+with open('contracts.csv', 'r') as file:
+    allContracts = csv.reader(file,delimiter='\t')
+    for row in allContracts:
+        print(row)
