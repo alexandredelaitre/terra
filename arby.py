@@ -67,7 +67,7 @@ mirust=terra.wasm.contract_query(contract,
             "offer_asset": {
                 "info" : {
                     "token": {
-                        "contract_addr": "terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6"
+                        "contract_addr": otherAsset
                     }
                 },
                 "amount": "1000000"
