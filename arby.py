@@ -69,7 +69,7 @@ def checkPrice(contract):
         otherAsset=terra.wasm.contract_query(contract,{'pool':{}})['assets'][1]['info']['token']['contract_addr']
     except:
         otherAsset=terra.wasm.contract_query(contract,{'pool':{}})['assets'][0]['info']['token']['contract_addr']
-    print(otherAsset)
+    
     mirust=terra.wasm.contract_query(contract,
         {
             "simulation": {
@@ -85,9 +85,31 @@ def checkPrice(contract):
         }
     )
 
-    print("$"+str(float(mirust['return_amount'])/1000000))
+    return "$"+str(float(mirust['return_amount'])/1000000)
+
+contractDict={}
 
 with open('contracts.csv', 'r') as file:
     allContracts = csv.reader(file,delimiter='\t')
+    i=0
     for row in allContracts:
-        print(row)
+        
+        if i==0:
+            rowOne=row
+        if i>=1:
+            token={}
+            for y in range(1,len(rowOne)):
+                token[rowOne[y]]=row[y]
+            contractDict[row[0]]=token
+        i+=1
+
+    
+print(contractDict)
+
+def checkAllValuesForACoin(coin,contractDict,rowOne):
+    thisCoin=contractDict[coin]
+    for i in range(1,len(rowOne)):
+        price=checkPrice(thisCoin[rowOne[i]])
+        print(rowOne[i],price)
+
+checkAllValuesForACoin("MIR",contractDict,rowOne)
