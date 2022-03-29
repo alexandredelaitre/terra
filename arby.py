@@ -63,7 +63,7 @@ contracts={
 #contract="terra1cpzkckgzz90pq8fkumdjc58ee5llrxt2yka9fp" #loop
 #contract="terra143xxfw5xf62d5m32k3t4eu9s82ccw80lcprzl9" #astroport
 
-def checkPrice(contract):
+def checkPriceForBuyCoin(contract):
 
     try:
         otherAsset=terra.wasm.contract_query(contract,{'pool':{}})['assets'][1]['info']['token']['contract_addr']
@@ -76,7 +76,7 @@ def checkPrice(contract):
                 "offer_asset": {
                     "info" : {
                         "token": {
-                            "contract_addr": "terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6"
+                            "contract_addr": otherAsset
                         }
                     },
                     "amount": "1000000"
@@ -84,16 +84,38 @@ def checkPrice(contract):
             }
         }
     )
+    return int(mirust['return_amount'])
 
-    return "$"+str(float(mirust['return_amount'])/1000000)
+def checkPriceForSellCoin(contract,amountToSell):
+    
+    try:
+        otherAsset=terra.wasm.contract_query(contract,{'pool':{}})['assets'][1]['info']['token']['contract_addr']
+    except:
+        otherAsset=terra.wasm.contract_query(contract,{'pool':{}})['assets'][0]['info']['token']['contract_addr']
+    
+    mirust=terra.wasm.contract_query(contract,
+        {
+            "simulation": {
+                "offer_asset": {
+                    "info" : {
+                        "native_token":{
+                            "denom":"uusd"
+                        }
+                    },
+                    "amount": str(amountToSell)
+                }
+            }
+        }
+    )
+
+    return int(mirust['return_amount'])
 
 contractDict={}
-
 with open('contracts.csv', 'r') as file:
     allContracts = csv.reader(file,delimiter='\t')
     i=0
     for row in allContracts:
-        
+
         if i==0:
             rowOne=row
         if i>=1:
@@ -103,13 +125,35 @@ with open('contracts.csv', 'r') as file:
             contractDict[row[0]]=token
         i+=1
 
-    
-print(contractDict)
-
 def checkAllValuesForACoin(coin,contractDict,rowOne):
     thisCoin=contractDict[coin]
     for i in range(1,len(rowOne)):
-        price=checkPrice(thisCoin[rowOne[i]])
+        price=checkPriceForBuyCoin(thisCoin[rowOne[i]])
         print(rowOne[i],price)
 
-checkAllValuesForACoin("MIR",contractDict,rowOne)
+def getCombos(rowOne):
+    combos={}
+
+    for i in range(len(rowOne)):
+        if rowOne[i]!='':
+            combos[rowOne[i]]=rowOne[1:]
+
+    return combos
+
+print(getCombos(rowOne))
+
+def simulateBuySell(coin,contractDict,rowOne):
+    combos=getCombos(rowOne)
+    rowsToUse=rowOne[1:]
+    for i in range(len(rowsToUse)):
+        for y in range(len(combos[rowsToUse[i]])):
+            if rowsToUse[i]!=combos[rowsToUse[i]][y]:
+                buyPrice=checkPriceForBuyCoin(contractDict[coin][rowsToUse[i]])
+                #print(buyPrice)
+                sellPrice=checkPriceForSellCoin(contractDict[coin][rowsToUse[i]],buyPrice)
+                print(rowsToUse[i],combos[rowsToUse[i]][y],sellPrice)
+                
+print(contractDict)
+simulateBuySell("MIR",contractDict,rowOne)
+
+#checkAllValuesForACoin("MIR",contractDict,rowOne)
