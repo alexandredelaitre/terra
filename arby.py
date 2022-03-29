@@ -152,8 +152,8 @@ def simulateBuySell(coin,contractDict,rowOne):
                 #print(buyPrice)
                 sellPrice=checkPriceForSellCoin(contractDict[coin][rowsToUse[i]],buyPrice)
                 print(rowsToUse[i],combos[rowsToUse[i]][y],sellPrice)
-                
+
 print(contractDict)
-simulateBuySell("MIR",contractDict,rowOne)
+simulateBuySell("ANC",contractDict,rowOne)
 
 #checkAllValuesForACoin("MIR",contractDict,rowOne)
