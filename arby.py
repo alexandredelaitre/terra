@@ -140,7 +140,7 @@ def getCombos(rowOne):
 
     return combos
 
-print(getCombos(rowOne))
+#print(getCombos(rowOne))
 
 def simulateBuySell(coin,contractDict,rowOne):
     combos=getCombos(rowOne)
@@ -149,11 +149,21 @@ def simulateBuySell(coin,contractDict,rowOne):
         for y in range(len(combos[rowsToUse[i]])):
             if rowsToUse[i]!=combos[rowsToUse[i]][y]:
                 buyPrice=checkPriceForBuyCoin(contractDict[coin][rowsToUse[i]])
-                #print(buyPrice)
-                sellPrice=checkPriceForSellCoin(contractDict[coin][rowsToUse[i]],buyPrice)
-                print(rowsToUse[i],combos[rowsToUse[i]][y],sellPrice)
+                sellPrice=checkPriceForSellCoin(contractDict[coin][combos[rowsToUse[i]][y]],buyPrice)
+                print(rowsToUse[i],combos[rowsToUse[i]][y],buyPrice,sellPrice)
 
-print(contractDict)
-simulateBuySell("ANC",contractDict,rowOne)
+def simulateAllCoinsBuySell(coins,contractDict,rowOne):
+    for key in coins:
+        print(key)
+        simulateBuySell(key,contractDict,rowOne)
+
+
+coins=contractDict.keys()
+
+
+
+
+#print(contractDict)
+simulateAllCoinsBuySell(coins,contractDict,rowOne)
 
 #checkAllValuesForACoin("MIR",contractDict,rowOne)
