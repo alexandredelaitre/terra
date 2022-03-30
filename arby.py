@@ -149,6 +149,8 @@ def simulateBuySell(coin,contractDict,rowOne):
     rowsToUse=rowOne[1:]
     for i in range(len(rowsToUse)):
         for y in range(len(combos[rowsToUse[i]])):
+            if contractDict[coin][rowsToUse[i]]=='' or contractDict[coin][combos[rowsToUse[i]][y]]=='':
+                continue
             if rowsToUse[i]!=combos[rowsToUse[i]][y]:
                 buyPrice=checkPriceForBuyCoin(contractDict[coin][rowsToUse[i]])
                 sellPrice=checkPriceForSellCoin(contractDict[coin][combos[rowsToUse[i]][y]],buyPrice)
