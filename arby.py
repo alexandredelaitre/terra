@@ -125,6 +125,8 @@ with open('contracts.csv', 'r') as file:
             contractDict[row[0]]=token
         i+=1
 
+print(contractDict)
+
 def checkAllValuesForACoin(coin,contractDict,rowOne):
     thisCoin=contractDict[coin]
     for i in range(1,len(rowOne)):
