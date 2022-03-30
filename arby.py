@@ -169,5 +169,5 @@ coins=contractDict.keys()
 
 #print(contractDict)
 simulateAllCoinsBuySell(coins,contractDict,rowOne)
-
+#simulateBuySell("ORION",contractDict,rowOne)
 #checkAllValuesForACoin("MIR",contractDict,rowOne)
