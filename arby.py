@@ -155,7 +155,10 @@ def simulateBuySell(coin,contractDict,rowOne):
             if rowsToUse[i]!=combos[rowsToUse[i]][y]:
                 buyPrice=checkPriceForBuyCoin(contractDict[coin][rowsToUse[i]])
                 sellPrice=checkPriceForSellCoin(contractDict[coin][combos[rowsToUse[i]][y]],buyPrice)
-                print(combos[rowsToUse[i]][y],rowsToUse[i],buyPrice,sellPrice)
+                if sellPrice>1000000:
+                    estimatedProfit=((sellPrice/1000000)-1)*363
+                    print(combos[rowsToUse[i]][y],rowsToUse[i],sellPrice,"$"+str(round(estimatedProfit,3)))
+
 
 def simulateAllCoinsBuySell(coins,contractDict,rowOne):
     for key in coins:
@@ -169,6 +172,10 @@ coins=contractDict.keys()
 
 
 #print(contractDict)
-#simulateAllCoinsBuySell(coins,contractDict,rowOne)
-simulateBuySell("STT",contractDict,rowOne)
+
+
+while True:
+    simulateAllCoinsBuySell(coins,contractDict,rowOne)
+
+#simulateBuySell("STT",contractDict,rowOne)
 #checkAllValuesForACoin("MIR",contractDict,rowOne)
