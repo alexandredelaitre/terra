@@ -106,6 +106,7 @@ def checkPriceForSellCoin(contract,amountToSell):
                 }
             }
         }
+        
     )
 
     return int(mirust['return_amount'])
@@ -154,7 +155,7 @@ def simulateBuySell(coin,contractDict,rowOne):
             if rowsToUse[i]!=combos[rowsToUse[i]][y]:
                 buyPrice=checkPriceForBuyCoin(contractDict[coin][rowsToUse[i]])
                 sellPrice=checkPriceForSellCoin(contractDict[coin][combos[rowsToUse[i]][y]],buyPrice)
-                print(rowsToUse[i],combos[rowsToUse[i]][y],buyPrice,sellPrice)
+                print(combos[rowsToUse[i]][y],rowsToUse[i],buyPrice,sellPrice)
 
 def simulateAllCoinsBuySell(coins,contractDict,rowOne):
     for key in coins:
@@ -168,6 +169,6 @@ coins=contractDict.keys()
 
 
 #print(contractDict)
-simulateAllCoinsBuySell(coins,contractDict,rowOne)
-#simulateBuySell("ORION",contractDict,rowOne)
+#simulateAllCoinsBuySell(coins,contractDict,rowOne)
+simulateBuySell("STT",contractDict,rowOne)
 #checkAllValuesForACoin("MIR",contractDict,rowOne)
