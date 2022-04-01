@@ -63,7 +63,7 @@ contracts={
 #contract="terra1cpzkckgzz90pq8fkumdjc58ee5llrxt2yka9fp" #loop
 #contract="terra143xxfw5xf62d5m32k3t4eu9s82ccw80lcprzl9" #astroport
 
-def checkPriceForBuyCoin(contract):
+def checkPriceForBuyCoin(contract,amountToBuyWith):
 
     try:
         otherAsset=terra.wasm.contract_query(contract,{'pool':{}})['assets'][1]['info']['token']['contract_addr']
@@ -75,11 +75,11 @@ def checkPriceForBuyCoin(contract):
             "simulation": {
                 "offer_asset": {
                     "info" : {
-                        "token": {
-                            "contract_addr": otherAsset
+                        "native_token":{
+                            "denom":"uusd"
                         }
                     },
-                    "amount": "1000000"
+                    "amount": str(amountToBuyWith*1000000)
                 }
             }
         }
@@ -98,8 +98,8 @@ def checkPriceForSellCoin(contract,amountToSell):
             "simulation": {
                 "offer_asset": {
                     "info" : {
-                        "native_token":{
-                            "denom":"uusd"
+                        "token":{
+                            "contract_addr":otherAsset
                         }
                     },
                     "amount": str(amountToSell)
@@ -131,7 +131,7 @@ print(contractDict)
 def checkAllValuesForACoin(coin,contractDict,rowOne):
     thisCoin=contractDict[coin]
     for i in range(1,len(rowOne)):
-        price=checkPriceForBuyCoin(thisCoin[rowOne[i]])
+        price=checkPriceForBuyCoin(thisCoin[rowOne[i]],100)
         print(rowOne[i],price)
 
 def getCombos(rowOne):
@@ -153,7 +153,7 @@ def simulateBuySell(coin,contractDict,rowOne):
             if contractDict[coin][rowsToUse[i]]=='' or contractDict[coin][combos[rowsToUse[i]][y]]=='':
                 continue
             if rowsToUse[i]!=combos[rowsToUse[i]][y]:
-                buyPrice=checkPriceForBuyCoin(contractDict[coin][rowsToUse[i]])
+                buyPrice=checkPriceForBuyCoin(contractDict[coin][rowsToUse[i]],100)
                 sellPrice=checkPriceForSellCoin(contractDict[coin][combos[rowsToUse[i]][y]],buyPrice)
                 if sellPrice>1000000:
                     estimatedProfit=((sellPrice/1000000)-1)*363
