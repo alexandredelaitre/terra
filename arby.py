@@ -1,14 +1,15 @@
-from terra_sdk.client.lcd import LCDClient
+import asyncio
+from terra_sdk.client.lcd import AsyncLCDClient
 import time
 import os
 import csv
+import threading
 
 def init():
     global mnemonic
     mnemonic= "flee innocent ankle client label toddler concert ripple weapon hire first urge science indicate blossom emerge copy defense execute heavy cycle wing never viable"
 init()
 
-terra = LCDClient(chain_id="columbus-5", url="https://lcd.terra.dev")
 
 
 
@@ -16,12 +17,12 @@ from terra_sdk.key.mnemonic import MnemonicKey
 
 mk = MnemonicKey(mnemonic=mnemonic)
 
-
+"""
 print(terra.bank.balance(mk.acc_address))
 
 
 print(terra.tendermint.block_info()['block']['header']['height'])
-
+"""
 
 """
 
@@ -63,14 +64,9 @@ contracts={
 #contract="terra1cpzkckgzz90pq8fkumdjc58ee5llrxt2yka9fp" #loop
 #contract="terra143xxfw5xf62d5m32k3t4eu9s82ccw80lcprzl9" #astroport
 
-def checkPriceForBuyCoin(contract,amountToBuyWith):
+async def checkPriceForBuyCoin(terra,contract,amountToBuyWith):
 
-    try:
-        otherAsset=terra.wasm.contract_query(contract,{'pool':{}})['assets'][1]['info']['token']['contract_addr']
-    except:
-        otherAsset=terra.wasm.contract_query(contract,{'pool':{}})['assets'][0]['info']['token']['contract_addr']
-    
-    mirust=terra.wasm.contract_query(contract,
+    mirust= await terra.wasm.contract_query(contract,
         {
             "simulation": {
                 "offer_asset": {
@@ -87,14 +83,15 @@ def checkPriceForBuyCoin(contract,amountToBuyWith):
     
     return int(mirust['return_amount'])
 
-def checkPriceForSellCoin(contract,amountToSell):
+async def checkPriceForSellCoin(terra,contract,amountToSell):
     
+    otherAssetPrep=await terra.wasm.contract_query(contract,{'pool':{}})
     try:
-        otherAsset=terra.wasm.contract_query(contract,{'pool':{}})['assets'][1]['info']['token']['contract_addr']
+        otherAsset=otherAssetPrep['assets'][1]['info']['token']['contract_addr']
     except:
-        otherAsset=terra.wasm.contract_query(contract,{'pool':{}})['assets'][0]['info']['token']['contract_addr']
+        otherAsset=otherAssetPrep['assets'][0]['info']['token']['contract_addr']
     
-    mirust=terra.wasm.contract_query(contract,
+    mirust=await terra.wasm.contract_query(contract,
         {
             "simulation": {
                 "offer_asset": {
@@ -146,7 +143,9 @@ def getCombos(rowOne):
 
 #print(getCombos(rowOne))
 
-def simulateBuySell(coin,contractDict,rowOne):
+async def simulateBuySell(coin,contractDict,rowOne):
+    terra = AsyncLCDClient(chain_id="columbus-5", url="https://lcd.terra.dev")
+
     combos=getCombos(rowOne)
     rowsToUse=rowOne[1:]
     for i in range(len(rowsToUse)):
@@ -154,32 +153,55 @@ def simulateBuySell(coin,contractDict,rowOne):
             if contractDict[coin][rowsToUse[i]]=='' or contractDict[coin][combos[rowsToUse[i]][y]]=='':
                 continue
             if rowsToUse[i]!=combos[rowsToUse[i]][y]:
-                buyPrice=checkPriceForBuyCoin(contractDict[coin][rowsToUse[i]],300)
-                sellPrice=checkPriceForSellCoin(contractDict[coin][combos[rowsToUse[i]][y]],buyPrice)
+                buyPrice=checkPriceForBuyCoin(terra, contractDict[coin][rowsToUse[i]],300)
+                buyPrice=await buyPrice
+                #print(buyPrice)
+                sellPrice=checkPriceForSellCoin(terra, contractDict[coin][combos[rowsToUse[i]][y]],buyPrice)
+                sellPrice=await sellPrice
                 if sellPrice/1000000>300:
                     estimatedProfit=(sellPrice/1000000)-300
                     print(rowsToUse[i],combos[rowsToUse[i]][y],buyPrice/1000000,sellPrice/1000000,"$"+str(round(estimatedProfit,3)))
+    await terra.session.close()
 
 
-
-def simulateAllCoinsBuySell(coins,contractDict,rowOne):
-    for key in coins:
-        print(key)
-        simulateBuySell(key,contractDict,rowOne)
 
 
 coins=contractDict.keys()
 
+asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+#asyncio.set_event_loop(asyncio.new_event_loop())
+#asyncio.run(simulateBuySell("MIR",contractDict,rowOne))
+
+
+async def simulateAllCoinsBuySell():
+    """threads=[]
+    """
+    for key in coins:
+        print(key)
+        func=simulateBuySell(key,contractDict,rowOne)
+        start_=time.time()
+        await func
+        end_=time.time()
+        print("awaited time:",(end_-start_))
+        """
+        x = threading.Thread(target=simulateBuySell, args=(key,contractDict,rowOne),daemon=True)
+
+        threads.append(x)
+    for i in threads:
+        i.start()
+        i.join()"""
+    
 
 
 
 #print(contractDict)
 
-
-start=time.time()
-simulateAllCoinsBuySell(coins,contractDict,rowOne)
-end=time.time()
-print(end-start)
+while True:
+    start=time.time()
+    asyncio.run(simulateAllCoinsBuySell())
+    end=time.time()
+    print(end-start)
 
 #simulateBuySell("STT",contractDict,rowOne)
 #checkAllValuesForACoin("MIR",contractDict,rowOne)
