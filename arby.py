@@ -84,6 +84,7 @@ def checkPriceForBuyCoin(contract,amountToBuyWith):
             }
         }
     )
+    
     return int(mirust['return_amount'])
 
 def checkPriceForSellCoin(contract,amountToSell):
@@ -153,11 +154,23 @@ def simulateBuySell(coin,contractDict,rowOne):
             if contractDict[coin][rowsToUse[i]]=='' or contractDict[coin][combos[rowsToUse[i]][y]]=='':
                 continue
             if rowsToUse[i]!=combos[rowsToUse[i]][y]:
+                buyPrice=checkPriceForBuyCoin(contractDict[coin][rowsToUse[i]],150)
+                sellPrice=checkPriceForSellCoin(contractDict[coin][combos[rowsToUse[i]][y]],buyPrice)
+                if sellPrice/1000000>150:
+                    estimatedProfit=(sellPrice/1000000)-150
+                    print(rowsToUse[i],combos[rowsToUse[i]][y],buyPrice/1000000,sellPrice/1000000,"$"+str(round(estimatedProfit,3)))
+
                 buyPrice=checkPriceForBuyCoin(contractDict[coin][rowsToUse[i]],100)
                 sellPrice=checkPriceForSellCoin(contractDict[coin][combos[rowsToUse[i]][y]],buyPrice)
-                if sellPrice>1000000:
-                    estimatedProfit=((sellPrice/1000000)-1)*363
-                    print(combos[rowsToUse[i]][y],rowsToUse[i],sellPrice,"$"+str(round(estimatedProfit,3)))
+                if sellPrice/1000000>100:
+                    estimatedProfit=(sellPrice/1000000)-100
+                    print(rowsToUse[i],combos[rowsToUse[i]][y],buyPrice/1000000,sellPrice/1000000,"$"+str(round(estimatedProfit,3)))
+
+                buyPrice=checkPriceForBuyCoin(contractDict[coin][rowsToUse[i]],50)
+                sellPrice=checkPriceForSellCoin(contractDict[coin][combos[rowsToUse[i]][y]],buyPrice)
+                if sellPrice/1000000>50:
+                    estimatedProfit=(sellPrice/1000000)-50
+                    print(rowsToUse[i],combos[rowsToUse[i]][y],buyPrice/1000000,sellPrice/1000000,"$"+str(round(estimatedProfit,3)))
 
 
 def simulateAllCoinsBuySell(coins,contractDict,rowOne):
