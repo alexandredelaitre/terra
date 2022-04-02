@@ -160,7 +160,7 @@ async def simulateBuySell(coin,contractDict,rowOne):
                 sellPrice=await sellPrice
                 if sellPrice/1000000>300:
                     estimatedProfit=(sellPrice/1000000)-300
-                    print(rowsToUse[i],combos[rowsToUse[i]][y],buyPrice/1000000,sellPrice/1000000,"$"+str(round(estimatedProfit,3)))
+                    print(coin,rowsToUse[i],combos[rowsToUse[i]][y],buyPrice/1000000,sellPrice/1000000,"$"+str(round(estimatedProfit,3)))
     await terra.session.close()
 
 
@@ -174,17 +174,15 @@ coins=contractDict.keys()
 
 
 async def simulateAllCoinsBuySell(loop):
-    """threads=[]
-    """
-    loop = asyncio.get_event_loop()
-    asyncs=[]
-    for key in coins:
-        print(key)
-        func=simulateBuySell(key,contractDict,rowOne)
-    res = await asyncio.gather(
-        loop.run_in_executor(None, sub1),
-        loop.run_in_executor(None, sub2)
-    )
 
+
+
+
+    coros = [simulateBuySell(key,contractDict,rowOne) for key in coins]
+    await asyncio.gather(*coros)
+
+start=time.time()
 loop = asyncio.get_event_loop()
 loop.run_until_complete(simulateAllCoinsBuySell(loop))
+end=time.time()
+print(end-start)
