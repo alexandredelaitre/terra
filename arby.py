@@ -4,7 +4,7 @@ import time
 import os
 import csv
 import threading
-
+from pprint import pprint
 def init():
     global mnemonic
     mnemonic= "flee innocent ankle client label toddler concert ripple weapon hire first urge science indicate blossom emerge copy defense execute heavy cycle wing never viable"
@@ -168,40 +168,23 @@ async def simulateBuySell(coin,contractDict,rowOne):
 
 coins=contractDict.keys()
 
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 #asyncio.set_event_loop(asyncio.new_event_loop())
 #asyncio.run(simulateBuySell("MIR",contractDict,rowOne))
 
 
-async def simulateAllCoinsBuySell():
+async def simulateAllCoinsBuySell(loop):
     """threads=[]
     """
+    loop = asyncio.get_event_loop()
+    asyncs=[]
     for key in coins:
         print(key)
         func=simulateBuySell(key,contractDict,rowOne)
-        start_=time.time()
-        await func
-        end_=time.time()
-        print("awaited time:",(end_-start_))
-        """
-        x = threading.Thread(target=simulateBuySell, args=(key,contractDict,rowOne),daemon=True)
+    res = await asyncio.gather(
+        loop.run_in_executor(None, sub1),
+        loop.run_in_executor(None, sub2)
+    )
 
-        threads.append(x)
-    for i in threads:
-        i.start()
-        i.join()"""
-    
-
-
-
-#print(contractDict)
-
-while True:
-    start=time.time()
-    asyncio.run(simulateAllCoinsBuySell())
-    end=time.time()
-    print(end-start)
-
-#simulateBuySell("STT",contractDict,rowOne)
-#checkAllValuesForACoin("MIR",contractDict,rowOne)
+loop = asyncio.get_event_loop()
+loop.run_until_complete(simulateAllCoinsBuySell(loop))
