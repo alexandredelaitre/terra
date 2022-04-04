@@ -178,8 +178,9 @@ async def simulateAllCoinsBuySell(loop):
     coros = [simulateBuySell(key,contractDict,rowOne) for key in coins]
     await asyncio.gather(*coros)
 loop = asyncio.get_event_loop()
+
+def makeCoinTrade(coin, contractDict, buyFrom, sellOn):
+    pass
+
 while True:
-    #start=time.time()
     loop.run_until_complete(simulateAllCoinsBuySell(loop))
-    #end=time.time()
-    #print(end-start)
