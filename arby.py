@@ -200,28 +200,26 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn):
     print(buyFromContract,sellOnContract)
     pool="terra17gjf2zehfvnyjtdgua9p9ygquk6gukxe7ucgwh"
 
-
-    terraSwap = MsgExecuteContract(
-        wallet.key.acc_address,
-        pool,
-        {
+    print(buyFromContract)
+    swap = (
+    MsgExecuteContract(
+        sender=mk.acc_address,
+        contract=buyFromContract,
+        execute_msg={
         "swap": {
-            "max_spread": "0.01",
-            "offer_asset": {
-                "info": {
+        "offer_asset": {
+            "info" : {
                 "native_token": {
-                    "denom": "uusd",
-                },
-                },
-                "amount": "1000000",
+                    "denom": "uusd"
+                }
             },
-            "belief_price": 0.532157,
-            },
+            "amount": 0.1 * 1000000, # AMOUNT YOU WANT TO SWAP
         },
-        Coins({ "uusd": '1000000' }),
-        );
-    print(terraSwap)
-    tx=wallet.create_and_sign_tx(CreateTxOptions(msgs=[execute])
+        "to": "terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6", # cw20 contract
+        },
+        
+    }))
+    tx=wallet.create_and_sign_tx(CreateTxOptions(msgs=[swap]))
     result=terra.tx.broadcast(tx)
     print(result)
 
