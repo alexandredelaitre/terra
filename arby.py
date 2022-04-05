@@ -1,10 +1,20 @@
 import asyncio
-from terra_sdk.client.lcd import AsyncLCDClient
+from turtle import onclick
+from terra_sdk.client.lcd import AsyncLCDClient,LCDClient
 import time
 import os
 import csv
 import threading
 from pprint import pprint
+
+from terra_sdk.client.lcd.api.tx import CreateTxOptions, SignerOptions
+from terra_sdk.core.fee import Fee
+from terra_sdk.core.bank import MsgSend
+import terra_sdk.core.market.msgs as market
+from terra_sdk.core import Coin, Coins
+from terra_sdk.core.tx import SignMode
+from terra_sdk.key.key import SignOptions
+from terra_sdk.core.wasm.msgs import MsgExecuteContract
 def init():
     global mnemonic
     mnemonic= "flee innocent ankle client label toddler concert ripple weapon hire first urge science indicate blossom emerge copy defense execute heavy cycle wing never viable"
@@ -179,8 +189,46 @@ async def simulateAllCoinsBuySell(loop):
     await asyncio.gather(*coros)
 loop = asyncio.get_event_loop()
 
-def makeCoinTrade(coin, contractDict, buyFrom, sellOn):
-    pass
 
-while True:
+
+def makeCoinTrade(coin, contractDict, buyFrom, sellOn):
+    terra = LCDClient("https://lcd.terra.dev", "columbus-5")
+    wallet = terra.wallet(mk)
+    print(coin,buyFrom,sellOn)
+    buyFromContract=contractDict[coin][buyFrom]
+    sellOnContract=contractDict[coin][sellOn]
+    print(buyFromContract,sellOnContract)
+    pool="terra17gjf2zehfvnyjtdgua9p9ygquk6gukxe7ucgwh"
+
+
+    terraSwap = MsgExecuteContract(
+        wallet.key.acc_address,
+        pool,
+        {
+        "swap": {
+            "max_spread": "0.01",
+            "offer_asset": {
+                "info": {
+                "native_token": {
+                    "denom": "uusd",
+                },
+                },
+                "amount": "1000000",
+            },
+            "belief_price": 0.532157,
+            },
+        },
+        Coins({ "uusd": '1000000' }),
+        );
+    print(terraSwap)
+    tx=wallet.create_and_sign_tx(CreateTxOptions(msgs=[execute])
+    result=terra.tx.broadcast(tx)
+    print(result)
+
+
+
+makeCoinTrade("MIR",contractDict,"terraswap","loop")
+
+"""while True:
     loop.run_until_complete(simulateAllCoinsBuySell(loop))
+"""
