@@ -1,5 +1,5 @@
 import asyncio
-from turtle import onclick
+
 from terra_sdk.client.lcd import AsyncLCDClient,LCDClient
 import time
 import os
@@ -213,9 +213,9 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn):
                     "denom": "uusd"
                 }
             },
-            "amount": 0.1 * 1000000, # AMOUNT YOU WANT TO SWAP
+            "amount": 1 * 1000000,
         },
-        "to": "terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6", # cw20 contract
+        "to": "terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6", 
         },
         
     }))
@@ -227,6 +227,8 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn):
 
 makeCoinTrade("MIR",contractDict,"terraswap","loop")
 
-"""while True:
-    loop.run_until_complete(simulateAllCoinsBuySell(loop))
-"""
+while True:
+    try:
+        loop.run_until_complete(simulateAllCoinsBuySell(loop))
+    except Exception as e:
+        print("Error",e)
