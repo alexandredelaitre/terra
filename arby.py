@@ -225,7 +225,7 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn):
                     },
                     "amount": "1000000",
                 },
-                "belief_price": 517608,
+                "belief_price": "517608",
                 },
             },
             Coins.from_str("1000000uusd")
