@@ -201,34 +201,30 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn):
     pool="terra17gjf2zehfvnyjtdgua9p9ygquk6gukxe7ucgwh"
 
     print(buyFromContract)
-    swap = (
-    MsgExecuteContract(
-        sender=mk.acc_address,
-        contract=buyFromContract,
-        execute_msg={
-        "swap": {
-        "offer_asset": {
-            "info" : {
-                "native_token": {
-                    "denom": "uusd"
-                }
-            },
-            "amount": 1 * 1000000,
-        },
-        "to": "terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6", 
-        },
-        
-    }))
-    tx=wallet.create_and_sign_tx(CreateTxOptions(msgs=[swap]))
-    result=terra.tx.broadcast(tx)
+
+    tx = wallet.create_and_sign_tx(CreateTxOptions(
+    msgs=[MsgSend(
+        wallet.key.acc_address,
+        mk.acc_address,
+        "10000uusd" # send 1 luna
+    )],
+    memo="test transaction!",
+))
+    print(tx)
+    result = terra.tx.broadcast(tx)
     print(result)
+    
+    #tx=wallet.create_and_sign_tx(CreateTxOptions(msgs=[swap]))
+    #result=terra.tx.broadcast(tx)
+    #print(result)
 
 
 
 makeCoinTrade("MIR",contractDict,"terraswap","loop")
 
-while True:
+"""while True:
     try:
         loop.run_until_complete(simulateAllCoinsBuySell(loop))
     except Exception as e:
         print("Error",e)
+"""
