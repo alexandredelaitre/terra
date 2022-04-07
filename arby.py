@@ -202,14 +202,35 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn):
 
     print(buyFromContract)
 
-    tx = wallet.create_and_sign_tx(CreateTxOptions(
+    """tx = wallet.create_and_sign_tx(CreateTxOptions(
     msgs=[MsgSend(
         wallet.key.acc_address,
         mk.acc_address,
         "10000uusd" # send 1 luna
     )],
     memo="test transaction!",
-))
+))"""
+    tx=wallet.create_and_sign_tx(CreateTxOptions(
+        msgs=[MsgExecuteContract(
+            mk.acc_address,
+            "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux",
+            {
+                "swap": {
+                "max_spread": "0.01",
+                "offer_asset": {
+                    "info": {
+                    "native_token": {
+                        "denom": "uusd",
+                    },
+                    },
+                    "amount": "1000000",
+                },
+                "belief_price": 517608,
+                },
+            },
+            Coins.from_str("1000000uusd")
+        )]
+    ))
     print(tx)
     result = terra.tx.broadcast(tx)
     print(result)
