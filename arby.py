@@ -191,7 +191,7 @@ loop = asyncio.get_event_loop()
 
 
 
-def makeCoinTrade(coin, contractDict, buyFrom, sellOn):
+def makeCoinTrade(coin, contractDict, buyFrom, sellOn,):
     terra = LCDClient("https://lcd.terra.dev", "columbus-5")
     wallet = terra.wallet(mk)
     print(coin,buyFrom,sellOn)
@@ -210,26 +210,47 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn):
     )],
     memo="test transaction!",
 ))"""
-    tx=wallet.create_and_sign_tx(CreateTxOptions(
-        msgs=[MsgExecuteContract(
-            mk.acc_address,
-            "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux",
-            {
-                "swap": {
-                "max_spread": "0.01",
-                "offer_asset": {
-                    "info": {
-                    "native_token": {
-                        "denom": "uusd",
+    """swap1=MsgExecuteContract(
+                mk.acc_address,
+                "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux",
+                {
+                    "swap": {
+                    "max_spread": "0.01",
+                    "offer_asset": {
+                        "info": {
+                        "native_token": {
+                            "denom": "uusd",
+                        },
+                        },
+                        "amount": "1000000",
                     },
+                    "belief_price": "517608",
                     },
-                    "amount": "1000000",
                 },
-                "belief_price": "517608",
+                Coins.from_str("1000000uusd")
+            )"""
+    swap1=MsgExecuteContract(
+        mk.acc_address,
+        sellOnContract,
+        {#['info']['token']['contract_addr']
+            "swap": {
+            "max_spread": "0.01",
+            "offer_asset": {
+                "info": {
+                "token": {
+                    "contract_addr": "terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6",
                 },
+                },
+                "amount": "515862",
             },
-            Coins.from_str("1000000uusd")
-        )]
+            "belief_price": "921058",
+            },
+        },
+        Coins()
+
+    )
+    tx=wallet.create_and_sign_tx(CreateTxOptions(
+        msgs=[swap1]
     ))
     print(tx)
     result = terra.tx.broadcast(tx)
@@ -247,5 +268,5 @@ makeCoinTrade("MIR",contractDict,"terraswap","loop")
     try:
         loop.run_until_complete(simulateAllCoinsBuySell(loop))
     except Exception as e:
-        print("Error",e)
+        print("Error")
 """
