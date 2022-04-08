@@ -26,9 +26,13 @@ init()
 from terra_sdk.key.mnemonic import MnemonicKey
 
 mk = MnemonicKey(mnemonic=mnemonic)
-
-"""
+terra = LCDClient("https://lcd.terra.dev", "columbus-5")
+    
 print(terra.bank.balance(mk.acc_address))
+assets=terra.wasm.contract_query("terra1jxazgm67et0ce260kvrpfv50acuushpjsz2y0p",{'pool':{}})
+print(assets,"\n")
+"""
+
 
 
 print(terra.tendermint.block_info()['block']['header']['height'])
@@ -37,7 +41,7 @@ print(terra.tendermint.block_info()['block']['header']['height'])
 """
 
 pool="terra1jxazgm67et0ce260kvrpfv50acuushpjsz2y0p"
-assets=terra.wasm.contract_query(pool,{'pool':{}})
+
 
 
 def fetchData():
@@ -202,14 +206,7 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,):
 
     print(buyFromContract)
 
-    """tx = wallet.create_and_sign_tx(CreateTxOptions(
-    msgs=[MsgSend(
-        wallet.key.acc_address,
-        mk.acc_address,
-        "10000uusd" # send 1 luna
-    )],
-    memo="test transaction!",
-))"""
+    
     """swap1=MsgExecuteContract(
                 mk.acc_address,
                 "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux",
@@ -229,28 +226,27 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,):
                 },
                 Coins.from_str("1000000uusd")
             )"""
-    swap1=MsgExecuteContract(
-        mk.acc_address,
-        sellOnContract,
-        {#['info']['token']['contract_addr']
-            "swap": {
-            "max_spread": "0.01",
-            "offer_asset": {
-                "info": {
-                "token": {
-                    "contract_addr": "terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6",
-                },
-                },
-                "amount": "515862",
-            },
-            "belief_price": "921058",
-            },
-        },
-        Coins()
-
-    )
+    
     tx=wallet.create_and_sign_tx(CreateTxOptions(
-        msgs=[swap1]
+        msgs=[MsgExecuteContract(
+        mk.acc_address,
+        "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux",
+        {
+        "swap": {
+        "max_spread": "0.01",
+        "offer_asset": {
+            "info": {
+            "native_token": {
+                "denom": "uusd",
+            },
+            },
+            "amount": "1000000",
+        },
+        "belief_price": "517608",
+        },
+    },
+
+        )]
     ))
     print(tx)
     result = terra.tx.broadcast(tx)
