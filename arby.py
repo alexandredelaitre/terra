@@ -229,23 +229,23 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,):
     
     tx=wallet.create_and_sign_tx(CreateTxOptions(
         msgs=[MsgExecuteContract(
-        mk.acc_address,
-        "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux",
-        {
-        "swap": {
-        "max_spread": "0.01",
-        "offer_asset": {
-            "info": {
-            "native_token": {
-                "denom": "uusd",
+            mk.acc_address,
+            "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux",
+            {
+                "swap": {
+                "max_spread": "0.01",
+                "offer_asset": {
+                    "info": {
+                    "native_token": {
+                        "denom": "uusd",
+                    },
+                    },
+                    "amount": "1000000",
+                },
+                "belief_price": "564121",
+                },
             },
-            },
-            "amount": "1000000",
-        },
-        "belief_price": "517608",
-        },
-    },
-
+            Coins.from_str("1000000uusd")
         )]
     ))
     print(tx)
