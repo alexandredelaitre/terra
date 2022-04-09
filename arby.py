@@ -227,7 +227,7 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,):
                 Coins.from_str("1000000uusd")
             )"""
     
-    tx=wallet.create_and_sign_tx(CreateTxOptions(
+    """tx=wallet.create_and_sign_tx(CreateTxOptions(
         msgs=[MsgExecuteContract(
             mk.acc_address,
             "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux",
@@ -247,7 +247,30 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,):
             },
             Coins.from_str("1000000uusd")
         )]
+    ))"""
+
+    tx=wallet.create_and_sign_tx(CreateTxOptions(
+        msgs=[MsgExecuteContract(
+            mk.acc_address,
+            "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux",
+            {
+                "swap": {
+                "max_spread": "0.01",
+                "offer_asset": {
+                    "info": {
+                    "token": {
+                        "contract_addr": "terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6",
+                    },
+                    },
+                    "amount": "500000",
+                },
+                "belief_price": "880679",
+                },
+            },
+            #Coins.from_str("880679uusd")
+        )]
     ))
+
     print(tx)
     result = terra.tx.broadcast(tx)
     print(result)
