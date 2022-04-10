@@ -270,6 +270,7 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,):
             #Coins.from_str("880679uusd")
         )]
     ))
+    #DO IT FROM CW20
 
     print(tx)
     result = terra.tx.broadcast(tx)
