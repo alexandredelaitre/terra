@@ -209,7 +209,7 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,):
     print(buyFromContract)
 
     
-    """swap1=MsgExecuteContract(
+    swap1=MsgExecuteContract(
                 mk.acc_address,
                 "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux",
                 {
@@ -223,59 +223,12 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,):
                         },
                         "amount": "1000000",
                     },
-                    "belief_price": "517608",
+                    "belief_price": "616664",
                     },
                 },
                 Coins.from_str("1000000uusd")
-            )"""
-    
-    """tx=wallet.create_and_sign_tx(CreateTxOptions(
-        msgs=[MsgExecuteContract(
-            mk.acc_address,
-            "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux",
-            {
-                "swap": {
-                "max_spread": "0.01",
-                "offer_asset": {
-                    "info": {
-                    "native_token": {
-                        "denom": "uusd",
-                    },
-                    },
-                    "amount": "1000000",
-                },
-                "belief_price": "564121",
-                },
-            },
-            Coins.from_str("1000000uusd")
-        )]
-    ))"""
+            )
 
-    """tx=wallet.create_and_sign_tx(CreateTxOptions(
-        msgs=[MsgExecuteContract(
-            mk.acc_address,
-            "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux",
-            {
-                "swap": {
-                "max_spread": "0.01",
-                "offer_asset": {
-                    "info": {
-                    "token": {
-                        "contract_addr": "terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6",
-                    },
-                    },
-                    "amount": "500000",
-                },
-                "belief_price": "880679",
-                },
-            },
-            #Coins.from_str("880679uusd")
-        )]
-    ))"""
-    #DO IT FROM CW20
-    
-    coin = Coin.parse("80204MIR").to_data()
-    coins = Coins.from_data([coin])
     swap_msg = {"swap":{"max_spread":"0.01"}}
     encoded_json = base64.b64encode(json.dumps(swap_msg).encode("utf-8")).decode('ascii')
     message=MsgExecuteContract(
@@ -284,13 +237,13 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,):
         execute_msg={
             "send": {
             "msg": encoded_json,
-            "amount": "80204",
+            "amount": "600000",
             "contract": "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux"
             }
         },
     )
     tx=wallet.create_and_sign_tx(CreateTxOptions(
-        msgs=[message]
+        msgs=[swap1,message]
     ))
     print(tx)
     result = terra.tx.broadcast(tx)
