@@ -6,7 +6,7 @@ import os
 import csv
 import threading
 from pprint import pprint
-
+import json
 from terra_sdk.client.lcd.api.tx import CreateTxOptions, SignerOptions
 from terra_sdk.core.fee import Fee
 from terra_sdk.core.bank import MsgSend
@@ -15,10 +15,12 @@ from terra_sdk.core import Coin, Coins
 from terra_sdk.core.tx import SignMode
 from terra_sdk.key.key import SignOptions
 from terra_sdk.core.wasm.msgs import MsgExecuteContract
+import math
 def init():
     global mnemonic
     mnemonic= "flee innocent ankle client label toddler concert ripple weapon hire first urge science indicate blossom emerge copy defense execute heavy cycle wing never viable"
 init()
+import base64
 
 
 
@@ -249,7 +251,7 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,):
         )]
     ))"""
 
-    tx=wallet.create_and_sign_tx(CreateTxOptions(
+    """tx=wallet.create_and_sign_tx(CreateTxOptions(
         msgs=[MsgExecuteContract(
             mk.acc_address,
             "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux",
@@ -269,9 +271,27 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,):
             },
             #Coins.from_str("880679uusd")
         )]
-    ))
+    ))"""
     #DO IT FROM CW20
-
+    
+    coin = Coin.parse("80204MIR").to_data()
+    coins = Coins.from_data([coin])
+    swap_msg = {"swap":{"max_spread":"0.01"}}
+    encoded_json = base64.b64encode(json.dumps(swap_msg).encode("utf-8")).decode('ascii')
+    message=MsgExecuteContract(
+        sender = mk.acc_address,
+        contract = "terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6",
+        execute_msg={
+            "send": {
+            "msg": encoded_json,
+            "amount": "80204",
+            "contract": "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux"
+            }
+        },
+    )
+    tx=wallet.create_and_sign_tx(CreateTxOptions(
+        msgs=[message]
+    ))
     print(tx)
     result = terra.tx.broadcast(tx)
     print(result)
