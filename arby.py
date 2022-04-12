@@ -215,7 +215,7 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,amount,beliefBuyPrice,coin
     
     swap1=MsgExecuteContract(
                 mk.acc_address,
-                "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux",
+                buyFromContract,
                 {
                     "swap": {
                     "max_spread": "0.01",
@@ -251,7 +251,7 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,amount,beliefBuyPrice,coin
         },
     )
     tx=wallet.create_and_sign_tx(CreateTxOptions(
-        msgs=[swap1]
+        msgs=[swap1,message]
     ))
     print(tx)
     result = terra.tx.broadcast(tx)
