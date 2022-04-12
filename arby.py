@@ -123,7 +123,7 @@ async def checkPriceForSellCoin(terra,contract,amountToSell):
         
     )
 
-    return int(mirust['return_amount'])
+    return int(mirust['return_amount']),otherAsset
 
 contractDict={}
 with open('contracts.csv', 'r') as file:
@@ -159,7 +159,7 @@ def getCombos(rowOne):
 
 #print(getCombos(rowOne))
 
-async def simulateBuySell(coin,contractDict,rowOne):
+async def simulateBuySell(coin,contractDict,rowOne,amount):
     terra = AsyncLCDClient(chain_id="columbus-5", url="https://lcd.terra.dev")
 
     combos=getCombos(rowOne)
@@ -169,14 +169,16 @@ async def simulateBuySell(coin,contractDict,rowOne):
             if contractDict[coin][rowsToUse[i]]=='' or contractDict[coin][combos[rowsToUse[i]][y]]=='':
                 continue
             if rowsToUse[i]!=combos[rowsToUse[i]][y]:
-                buyPrice=checkPriceForBuyCoin(terra, contractDict[coin][rowsToUse[i]],300)
+                buyPrice=checkPriceForBuyCoin(terra, contractDict[coin][rowsToUse[i]],100)
                 buyPrice=await buyPrice
                 #print(buyPrice)
                 sellPrice=checkPriceForSellCoin(terra, contractDict[coin][combos[rowsToUse[i]][y]],buyPrice)
-                sellPrice=await sellPrice
-                if sellPrice/1000000>300.1:
-                    estimatedProfit=(sellPrice/1000000)-300
+                sellPrice,otherAsset=await sellPrice
+                if sellPrice/1000000>amount+0.1:
+                    estimatedProfit=(sellPrice/1000000)-amount
                     print(coin,rowsToUse[i],combos[rowsToUse[i]][y],buyPrice/1000000,sellPrice/1000000,"$"+str(round(estimatedProfit,3)),time.ctime())
+                    makeCoinTrade(coin,contractDict,rowsToUse[i],combos[rowsToUse[i]][y],str(amount),str(buyPrice),str(sellPrice),)
+                    exit()
     await terra.session.close()
 
 
@@ -191,54 +193,58 @@ coins=contractDict.keys()
 
 async def simulateAllCoinsBuySell(loop):
 
-    coros = [simulateBuySell(key,contractDict,rowOne) for key in coins]
+    coros = [simulateBuySell(key,contractDict,rowOne,300) for key in coins]
     await asyncio.gather(*coros)
 loop = asyncio.get_event_loop()
 
 
 
-def makeCoinTrade(coin, contractDict, buyFrom, sellOn,):
+def makeCoinTrade(coin, contractDict, buyFrom, sellOn,amount,beliefBuyPrice,beliefSellPrice,coinContract):
     terra = LCDClient("https://lcd.terra.dev", "columbus-5")
     wallet = terra.wallet(mk)
-    print(coin,buyFrom,sellOn)
+    
     buyFromContract=contractDict[coin][buyFrom]
     sellOnContract=contractDict[coin][sellOn]
-    print(buyFromContract,sellOnContract)
-    pool="terra17gjf2zehfvnyjtdgua9p9ygquk6gukxe7ucgwh"
+    
 
     print(buyFromContract)
 
     
     swap1=MsgExecuteContract(
                 mk.acc_address,
-                "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux",
+                buyFromContract,
                 {
                     "swap": {
-                    "max_spread": "0.01",
+                    "max_spread": "0.005",
                     "offer_asset": {
                         "info": {
                         "native_token": {
                             "denom": "uusd",
                         },
                         },
-                        "amount": "1000000",
+                        "amount": str(1000000*amount),
                     },
-                    "belief_price": "616664",
+                    "belief_price": beliefBuyPrice,
                     },
                 },
-                Coins.from_str("1000000uusd")
+                
             )
 
-    swap_msg = {"swap":{"max_spread":"0.01"}}
+    swap_msg = {
+        "swap":{
+            "max_spread":"0.005"
+            },
+            "belief_price": beliefSellPrice
+        }
     encoded_json = base64.b64encode(json.dumps(swap_msg).encode("utf-8")).decode('ascii')
     message=MsgExecuteContract(
         sender = mk.acc_address,
-        contract = "terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6",
+        contract = coinContract, #coin
         execute_msg={
             "send": {
             "msg": encoded_json,
-            "amount": "600000",
-            "contract": "terra1amv303y8kzxuegvurh0gug2xe9wkgj65enq2ux"
+            "amount": beliefBuyPrice,
+            "contract": sellOnContract #pair contract
             }
         },
     )
@@ -255,7 +261,7 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,):
 
 
 
-makeCoinTrade("MIR",contractDict,"terraswap","loop")
+
 
 """while True:
     try:
