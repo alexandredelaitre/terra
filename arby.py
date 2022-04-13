@@ -177,11 +177,11 @@ async def simulateBuySell(coin,contractDict,rowOne,amount):
                 otherAsset=sellPrice[1]
                 sellPrice=sellPrice[0]
                 #print(sellPrice)
-                if sellPrice/1000000>299.7:
+                if sellPrice/1000000>300.1:
                     estimatedProfit=(sellPrice/1000000)-amount
                     print(coin,rowsToUse[i],combos[rowsToUse[i]][y],buyPrice/1000000,sellPrice/1000000,"$"+str(round(estimatedProfit,3)),time.ctime())
-                    makeCoinTrade(coin,contractDict,rowsToUse[i],combos[rowsToUse[i]][y],str(amount),str(buyPrice),otherAsset)
-                    exit()
+                    makeCoinTrade(coin,contractDict,rowsToUse[i],combos[rowsToUse[i]][y],str(amount),str(buyPrice),otherAsset,str(int(1000000*amount)),str(int(1000000*amount))+"uusd")
+                    
     await terra.session.close()
 
 
@@ -202,7 +202,7 @@ loop = asyncio.get_event_loop()
 
 
 
-def makeCoinTrade(coin, contractDict, buyFrom, sellOn,amount,beliefBuyPrice,coinContract):
+def makeCoinTrade(coin, contractDict, buyFrom, sellOn,amount,beliefBuyPrice,coinContract,money,moneyDisplay):
     terra = LCDClient("https://lcd.terra.dev", "columbus-5")
     wallet = terra.wallet(mk)
     
@@ -212,7 +212,9 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,amount,beliefBuyPrice,coin
 
     print(buyFromContract)
 
-    
+    print("writing swaps")
+    #money=str(int(1000000*amount))
+    #moneyDisplay=str(int(1000000*amount))+"uusd"
     swap1=MsgExecuteContract(
                 mk.acc_address,
                 buyFromContract,
@@ -225,14 +227,14 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,amount,beliefBuyPrice,coin
                             "denom": "uusd",
                         },
                         },
-                        "amount": str(int(1000000*amount)),
+                        "amount": money,
                     },
                     "belief_price": beliefBuyPrice,
                     },
                 },
-                Coins.from_str(str(int(1000000*amount))+"uusd")
+                Coins.from_str(moneyDisplay)
             )
-
+    print("swap 1 written")
     swap_msg = {
         "swap":{
             "max_spread":"0.01"
@@ -245,11 +247,12 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,amount,beliefBuyPrice,coin
         execute_msg={
             "send": {
             "msg": encoded_json,
-            "amount": beliefBuyPrice,
+            "amount": str(int(int(beliefBuyPrice)*0.99)),
             "contract": sellOnContract #pair contract
             }
         },
     )
+    print("swap 2 written")
     tx=wallet.create_and_sign_tx(CreateTxOptions(
         msgs=[swap1,message]
     ))
@@ -257,15 +260,16 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,amount,beliefBuyPrice,coin
     result = terra.tx.broadcast(tx)
     print(result)
 
-
-
-#makeCoinTrade("aUST",contractDict,"terraswap","loop",0.1,"83473","terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6")
-
+"""async def main():   
+    a=simulateBuySell("aUST",contractDict,rowOne,300)
+    await a
+loop.run_until_complete(main())
 """
+#makeCoinTrade("aUST",contractDict,"loop","terraswap",300,"242341056","terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu")
+
 
 while True:
     try:
         loop.run_until_complete(simulateAllCoinsBuySell(loop))
     except Exception as e:
         print(e)
-"""
