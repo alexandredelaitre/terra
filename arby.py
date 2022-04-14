@@ -177,7 +177,7 @@ async def simulateBuySell(coin,contractDict,rowOne,amount):
                 otherAsset=sellPrice[1]
                 sellPrice=sellPrice[0]
                 #print(sellPrice)
-                if sellPrice/1000000>300.1:
+                if sellPrice/1000000>300.8:
                     estimatedProfit=(sellPrice/1000000)-amount
                     print(coin,rowsToUse[i],combos[rowsToUse[i]][y],buyPrice/1000000,sellPrice/1000000,"$"+str(round(estimatedProfit,3)),time.ctime())
                     makeCoinTrade(coin,contractDict,rowsToUse[i],combos[rowsToUse[i]][y],str(amount),str(buyPrice),otherAsset,str(int(1000000*amount)),str(int(1000000*amount))+"uusd")
@@ -220,7 +220,7 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,amount,beliefBuyPrice,coin
                 buyFromContract,
                 {
                     "swap": {
-                    "max_spread": "0.01",
+                    "max_spread": "0.003",
                     "offer_asset": {
                         "info": {
                         "native_token": {
@@ -237,7 +237,7 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,amount,beliefBuyPrice,coin
     print("swap 1 written")
     swap_msg = {
         "swap":{
-            "max_spread":"0.01"
+            "max_spread":"0.003"
             }
         }
     encoded_json = base64.b64encode(json.dumps(swap_msg).encode("utf-8")).decode('ascii')
@@ -247,7 +247,7 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,amount,beliefBuyPrice,coin
         execute_msg={
             "send": {
             "msg": encoded_json,
-            "amount": str(int(int(beliefBuyPrice)*0.99)),
+            "amount": str(int(int(beliefBuyPrice)*0.997)),
             "contract": sellOnContract #pair contract
             }
         },
