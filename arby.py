@@ -220,7 +220,7 @@ def makeCoinTrade(coin, contractDict, buyFrom, sellOn,amount,beliefBuyPrice,coin
                 buyFromContract,
                 {
                     "swap": {
-                    "max_spread": "0.003",
+                    "max_spread": "0.0015",
                     "offer_asset": {
                         "info": {
                         "native_token": {
